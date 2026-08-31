@@ -36,7 +36,7 @@ class Cell:
 
 
 class Grid:
-    """Gerencia a matriz de células, distribuição de minas e regras do jogo."""
+    # Gerencia a matriz de células, distribuição de minas e regras do jogo
     def __init__(self, rows, cols, cell_size, num_mines, sprites):
         self.rows = rows
         self.cols = cols
@@ -51,7 +51,7 @@ class Grid:
         self.calculate_neighbors()
 
     def place_mines(self, num_mines):
-        """Distribui as minas aleatoriamente pelo tabuleiro."""
+        # Distribui as minas aleatoriamente pelo tabuleiro
         mines_placed = 0
         while mines_placed < num_mines:
             r = random.randint(0, self.rows - 1)
@@ -61,7 +61,7 @@ class Grid:
                 mines_placed += 1
 
     def calculate_neighbors(self):
-        """Calcula quantas minas existem ao redor de cada célula (os 8 vizinhos)."""
+        # Calcula quantas minas existem ao redor de cada célula (os 8 vizinhos)
         for r in range(self.rows):
             for c in range(self.cols):
                 if self.cells[r][c].is_mine:
@@ -76,7 +76,7 @@ class Grid:
                 self.cells[r][c].neighbor_mines = count
 
     def reveal_cell(self, r, c):
-        """Revela uma célula e executa a expansão em cascata (Flood Fill) se for vazia."""
+        # Revela uma célula e executa a expansão em cascata (Flood Fill) se for vazia
         cell = self.cells[r][c]
         if cell.is_revealed or cell.is_flagged:
             return "continue"
@@ -97,14 +97,14 @@ class Grid:
         return "continue"
 
     def reveal_all_mines(self):
-        """Revela todas as minas do tabuleiro ao fim de jogo."""
+        # Revela todas as minas do tabuleiro ao fim de jogo
         for row in self.cells:
             for cell in row:
                 if cell.is_mine:
                     cell.is_revealed = True
 
     def check_win(self):
-        """Verifica se todas as células seguras foram abertas (Condição de Vitória)."""
+        # Verifica se todas as células seguras foram abertas (Condição de Vitória)
         for row in self.cells:
             for cell in row:
                 if not cell.is_mine and not cell.is_revealed:
@@ -112,7 +112,7 @@ class Grid:
         return True
 
     def draw(self, screen, offset_y=0):
-        """Itera pela matriz e manda cada célula se desenhar na tela."""
+        # Itera pela matriz e manda cada célula se desenhar na tela
         for row in self.cells:
             for cell in row:
                 cell.draw(screen, offset_y)
