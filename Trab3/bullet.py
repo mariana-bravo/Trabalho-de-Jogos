@@ -1,11 +1,9 @@
 import pygame
 from abc import ABC, abstractmethod
 from util import colored_sprite, EventHandler
-
-
 import math
 
-def rotate(pos, angle, axis = (0,0)):
+def rotate(pos, angle, axis=(0, 0)):
     angle = math.radians(angle)
     x, y = pos
     ax, ay = axis
@@ -24,38 +22,42 @@ def rotate(pos, angle, axis = (0,0)):
     # Translate back
     return rx + ax, ry + ay
 
-class Bullet (ABC):
-
-    def __init__(self, pos, angle = 0, radius = 16, life_time = None):
-        self.pos = pos
+class Bullet(ABC):
+    # Velocidade em pixels/segundo (ex: 600) e tempo de vida em segundos (ex: 3.0)
+    def __init__(self, pos, angle=0, radius=8, speed=600, life_time=3.0, color=(255, 255, 0)):
+        self.pos = pygame.Vector2(pos)
         self.origin = pygame.Vector2(pos)
         self.life_time = life_time
         self.angle = angle
         self.elapsed = 0
         self.radius = radius
-
-        self.sprite = colored_sprite ((255, 0, 0), (self.radius*2, self.radius*2))
+        self.speed = speed
+        self.sprite = colored_sprite(color, (self.radius * 2, self.radius * 2))
 
     def update(self, dt):
-
         self.elapsed += dt
         if self.life_time and self.elapsed >= self.life_time:
-                self.destroy()       
-
-        self.pos = rotate(self.move(), self.angle)+self.origin
+            self.destroy()
+            return
+        
+        rel_pos = self.move()
+        self.pos = pygame.Vector2(rotate(rel_pos, self.angle)) + self.origin
 
     def draw(self, screen):
-        screen.blit(self.sprite, self.pos)
+        # Centraliza o sprite do tiro na posição x, y
+        screen.blit(self.sprite, (self.pos.x - self.radius, self.pos.y - self.radius))
 
     @abstractmethod
     def move(self):
         pass
 
-    def destroy(self): # pede para deletar
-        EventHandler().notify("DestroyObj", self) # avisa o mundo que saiu da tela
+    def destroy(self):
+        EventHandler().notify("DestroyObj", self)
 
-class sinBullet (Bullet):
-    # exemplo, façam algo mais rebuscado
-
+class StraightBullet(Bullet):
     def move(self):
-        return pygame.Vector2(self.elapsed, math.sin(self.elapsed/50)*50) 
+        return pygame.Vector2(0, -self.elapsed * self.speed)
+
+class ZigZagBullet(Bullet):
+    def move(self):
+        return pygame.Vector2(math.sin(self.elapsed * 12) * 35, -self.elapsed * self.speed)
